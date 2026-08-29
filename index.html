@@ -869,7 +869,7 @@
    won't sync between devices yet.
 */
 const SUPABASE_URL = "https://ewkwojcasuietmssuiwy.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_t7nyGijSEUABDQJ4ttN29Q_0sdFWAlA";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3a3dvamNhc3VpZXRtc3N1aXd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTAyMTMsImV4cCI6MjEwMzUyNjIxM30.SqUfYPSpv0GYyYQasgQymBr1cZ04wP8PtaOeu-lV0WY";
 const supabaseClient = (typeof supabase !== 'undefined' && SUPABASE_URL.startsWith('http'))
   ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
