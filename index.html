@@ -125,6 +125,46 @@
     80%{ transform:translateX(6px); }
   }
 
+  /* ============ PROFILE PICKER ============ */
+  #profile-select{ display:flex; gap:14px; justify-content:center; margin-bottom:10px; }
+  .profile-btn{
+    flex:1; background:var(--cream); border:1.5px solid var(--blush-deep);
+    border-radius:16px; padding:18px 10px; font-size:.95rem; font-weight:600;
+    color:var(--plum); line-height:1.9; transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .profile-btn:hover{ transform:translateY(-3px); border-color:var(--rose); box-shadow:0 10px 20px var(--shadow); }
+  #back-to-profiles{
+    background:transparent; border:none; color:var(--rose-deep); font-size:.8rem;
+    padding:2px; text-decoration:underline;
+  }
+
+  /* ============ WHOAMI / NOTIF BELL ============ */
+  #whoami{ display:flex; align-items:center; gap:12px; }
+  #whoami-label{ font-size:.85rem; color:var(--rose-deep); font-weight:600; }
+  #notif-bell{
+    position:relative; background:transparent; border:none; font-size:1.25rem; padding:2px 4px;
+  }
+  .notif-badge{
+    position:absolute; top:-2px; right:-4px; background:var(--rose-deep); color:#fff;
+    font-size:.62rem; font-weight:700; min-width:16px; height:16px; border-radius:999px;
+    display:flex; align-items:center; justify-content:center; padding:0 4px;
+  }
+  #switch-profile-btn{
+    background:transparent; border:1px solid var(--blush-deep); border-radius:999px;
+    padding:6px 14px; font-size:.78rem; color:var(--plum); transition:background .2s ease;
+  }
+  #switch-profile-btn:hover{ background:var(--blush-deep); }
+
+  /* ============ NOTIFICATIONS TAB ============ */
+  #notif-list{ display:flex; flex-direction:column; gap:12px; max-width:640px; margin:0 auto; }
+  .notif-item{
+    background:var(--cream); border-radius:14px; padding:14px 18px;
+    box-shadow:0 8px 20px var(--shadow); border-left:4px solid var(--blush-deep);
+    display:flex; flex-direction:column; gap:4px; cursor:pointer; transition:border-color .2s ease;
+  }
+  .notif-item.unread{ border-left-color:var(--rose); }
+  .notif-item .notif-meta{ font-size:.75rem; color:var(--rose-deep); }
+
   /* ============ DASHBOARD SHELL ============ */
   #dashboard{
     position:relative; z-index:2;
@@ -224,19 +264,22 @@
 
   /* ============ SECTION 2: GALLERY ============ */
   .gallery-grid{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:34px; padding-top:10px;
+    column-count:1; column-width:230px; column-gap:30px; padding-top:10px;
   }
+  @media (min-width:480px){ .gallery-grid{ column-count:2; } }
+  @media (min-width:760px){ .gallery-grid{ column-count:3; } }
+  @media (min-width:1040px){ .gallery-grid{ column-count:4; } }
   .frame{
-    cursor:pointer; transition:transform .4s ease, box-shadow .4s ease;
     display:flex; flex-direction:column; align-items:center;
+    width:100%; break-inside:avoid; -webkit-column-break-inside:avoid;
+    margin:0 0 30px;
+    cursor:pointer; transition:transform .4s ease, box-shadow .4s ease;
   }
   .frame:hover{ transform:scale(1.06) rotate(0deg) !important; z-index:5; }
 
   .frame.polaroid{
     background:#fff; padding:12px 12px 34px; box-shadow:0 12px 26px var(--shadow);
-    transform:rotate(-3deg);
   }
-  .frame.polaroid:nth-child(2n){ transform:rotate(3deg); }
   .frame.polaroid img{ width:100%; display:block; }
   .frame.polaroid figcaption{ font-family:var(--font-script); font-size:1.1rem; text-align:center; margin-top:8px; color:var(--plum); }
 
@@ -248,6 +291,14 @@
   .frame.gilded .inner{ background:#fff; padding:6px; border:1px solid rgba(0,0,0,.15); }
   .frame.gilded img{ width:100%; display:block; }
   .frame.gilded figcaption{ text-align:center; color:var(--cream); font-family:var(--font-display); font-style:italic; margin-top:8px; }
+
+  /* simple photobooth strip: photos stacked at their own natural size, no forced empty space */
+  .frame.strip{
+    background:var(--plum); padding:10px 10px 20px; box-shadow:0 12px 26px var(--shadow); border-radius:6px;
+  }
+  .frame.strip .strip-photos{ display:flex; flex-direction:column; }
+  .frame.strip .strip-photos img{ width:100%; display:block; margin-bottom:8px; border:3px solid #fff; }
+  .frame.strip figcaption{ text-align:center; color:var(--gold-light); font-size:.75rem; letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
 
   #gallery-modal{
     position:fixed; inset:0; background:rgba(46,26,44,.85); z-index:60;
@@ -414,13 +465,20 @@
   <div class="lock-card">
     <div class="seal" id="seal-icon">C&amp;A</div>
     <h1>A Little Something For You</h1>
-    <p class="sub">Whisper the password to open this place.</p>
-    <form id="password-form" autocomplete="off">
+    <p class="sub" id="lock-sub">Who's opening this?</p>
+
+    <div id="profile-select">
+      <button type="button" class="profile-btn" data-profile="cece">🌸<br>Cece</button>
+      <button type="button" class="profile-btn" data-profile="arar">🌙<br>Arar</button>
+    </div>
+
+    <form id="password-form" autocomplete="off" style="display:none;">
       <div style="position:relative;">
         <input type="password" id="password-input" placeholder="Password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="width:100%;" />
         <button type="button" id="toggle-password" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); border:none; background:transparent; color:var(--rose-deep); font-size:.78rem; font-weight:600; padding:4px 6px;">show</button>
       </div>
       <button type="submit" id="unlock-btn">Unlock</button>
+      <button type="button" id="back-to-profiles">← choose a different profile</button>
     </form>
     <div class="lock-error" id="lock-error"></div>
   </div>
@@ -440,7 +498,13 @@
       <button class="tab-btn" data-target="gallery">Art Gallery</button>
       <button class="tab-btn" data-target="puzzles">Cozy Puzzles</button>
       <button class="tab-btn" data-target="coupons">Date Night Coupons</button>
+      <button class="tab-btn" data-target="notifications">Notifications</button>
     </nav>
+    <div id="whoami">
+      <span id="whoami-label"></span>
+      <button id="notif-bell" title="Notifications">🔔<span id="notif-badge" class="notif-badge" style="display:none;"></span></button>
+      <button id="switch-profile-btn">switch</button>
+    </div>
   </header>
 
   <main>
@@ -763,6 +827,17 @@
       </div>
     </section>
 
+    <!-- ===================== SECTION 5: NOTIFICATIONS ===================== -->
+    <section class="page-section" id="notifications">
+      <div class="section-intro">
+        <h2>Notifications</h2>
+        <p>Everything that's happened while you were away. Tap one to mark it read.</p>
+      </div>
+      <div id="notif-list">
+        <p id="notif-empty" style="text-align:center;color:var(--rose-deep);">Nothing yet ♥</p>
+      </div>
+    </section>
+
   </main>
 
   <!-- Gallery Modal -->
@@ -781,7 +856,24 @@
   <footer>made with a lot of love, just for you ♥</footer>
 </div>
 
+<!-- Supabase client library — this MUST load before the script below runs -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+/* ================= SUPABASE CONFIG =================
+   1. Create a free project at https://supabase.com
+   2. Project Settings → API → copy "Project URL" and "anon public" key, paste below
+   3. Run the SQL setup (given separately) in the Supabase SQL editor to create the
+      notifications table, then turn on Realtime for it under Database → Replication
+   Until you fill these in, the site still works fully offline — notifications just
+   won't sync between devices yet.
+*/
+const SUPABASE_URL = "https://ewkwojcasuietmssuiwy.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3a3dvamNhc3VpZXRtc3N1aXd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NTAyMTMsImV4cCI6MjEwMzUyNjIxM30.SqUfYPSpv0GYyYQasgQymBr1cZ04wP8PtaOeu-lV0WY";
+const supabaseClient = (typeof supabase !== 'undefined' && SUPABASE_URL.startsWith('http'))
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
 /* ================= FLOATING HEARTS ================= */
 (function(){
   const container = document.getElementById('floaty');
@@ -799,8 +891,11 @@
   }
 })();
 
-/* ================= PASSWORD LOCK ================= */
-const CORRECT_PASSWORD = "CeceLovesArar"; // change this if you want a different password
+/* ================= TWO-PROFILE LOCK ================= */
+// EDIT YOUR TWO PASSWORDS HERE — one per profile
+const PROFILE_PASSWORDS = { cece: "CeceLovesArar", arar: "ArarLovesCece" };
+const PROFILE_LABELS = { cece: "Cece", arar: "Arar" };
+
 const lockScreen = document.getElementById('lock-screen');
 const dashboard = document.getElementById('dashboard');
 const passwordForm = document.getElementById('password-form');
@@ -808,6 +903,35 @@ const passwordInput = document.getElementById('password-input');
 const lockError = document.getElementById('lock-error');
 const sealIcon = document.getElementById('seal-icon');
 const lockCard = document.querySelector('.lock-card');
+const profileSelect = document.getElementById('profile-select');
+const lockSub = document.getElementById('lock-sub');
+const whoamiLabel = document.getElementById('whoami-label');
+
+let currentProfile = null;
+let selectedProfile = null;
+
+function otherProfile(p){ return p === 'cece' ? 'arar' : 'cece'; }
+
+document.querySelectorAll('.profile-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    selectedProfile = btn.dataset.profile;
+    profileSelect.style.display = 'none';
+    passwordForm.style.display = 'flex';
+    lockSub.textContent = 'Hey ' + PROFILE_LABELS[selectedProfile] + ', whisper the password.';
+    lockError.textContent = '';
+    passwordInput.value = '';
+    passwordInput.focus();
+  });
+});
+
+document.getElementById('back-to-profiles').addEventListener('click', function(){
+  selectedProfile = null;
+  passwordForm.style.display = 'none';
+  profileSelect.style.display = 'flex';
+  lockError.textContent = '';
+  passwordInput.value = '';
+  lockSub.textContent = "Who's opening this?";
+});
 
 document.getElementById('toggle-password').addEventListener('click', function(){
   const btn = this;
@@ -822,12 +946,13 @@ document.getElementById('toggle-password').addEventListener('click', function(){
 
 passwordForm.addEventListener('submit', function(e){
   e.preventDefault();
-  if(passwordInput.value.trim() === CORRECT_PASSWORD){
+  if(selectedProfile && passwordInput.value.trim() === PROFILE_PASSWORDS[selectedProfile]){
     lockError.textContent = '';
     sealIcon.classList.add('crack');
     setTimeout(function(){
       lockScreen.classList.add('hidden');
       dashboard.classList.add('show');
+      enterAsProfile(selectedProfile, true);
     }, 500);
   } else {
     lockError.textContent = 'that\'s not quite it — try again';
@@ -835,6 +960,121 @@ passwordForm.addEventListener('submit', function(e){
     void lockCard.offsetWidth; // restart animation
     lockCard.classList.add('shake');
   }
+});
+
+document.getElementById('switch-profile-btn').addEventListener('click', function(){
+  localStorage.removeItem('cnaCurrentProfile');
+  currentProfile = null;
+  selectedProfile = null;
+  dashboard.classList.remove('show');
+  lockScreen.classList.remove('hidden');
+  sealIcon.classList.remove('crack');
+  passwordForm.style.display = 'none';
+  profileSelect.style.display = 'flex';
+  passwordInput.value = '';
+  lockSub.textContent = "Who's opening this?";
+});
+
+let notifChannel = null;
+
+function enterAsProfile(profile, remember){
+  currentProfile = profile;
+  whoamiLabel.textContent = 'you are ' + PROFILE_LABELS[profile];
+  if(remember){ localStorage.setItem('cnaCurrentProfile', profile); }
+  loadNotifications();
+  subscribeToNotifications();
+}
+
+// Auto sign-in on repeat visits so you don't have to log in every time
+(function(){
+  const saved = localStorage.getItem('cnaCurrentProfile');
+  if(saved && PROFILE_LABELS[saved]){
+    lockScreen.classList.add('hidden');
+    dashboard.classList.add('show');
+    enterAsProfile(saved, false);
+  }
+})();
+
+/* ================= NOTIFICATIONS ================= */
+const notifList = document.getElementById('notif-list');
+const notifEmpty = document.getElementById('notif-empty');
+const notifBadge = document.getElementById('notif-badge');
+
+// Call this from anywhere in the site to notify the OTHER profile of something.
+// Example: logNotification(currentProfile, 'letter', 'opened "Open when you miss me"');
+async function logNotification(sender, type, message){
+  if(!supabaseClient) return; // Supabase isn't configured yet — see CONFIG block above
+  try{
+    await supabaseClient.from('notifications').insert({
+      sender: sender,
+      recipient: otherProfile(sender),
+      type: type,
+      message: message,
+      read: false
+    });
+  }catch(err){
+    console.error('Could not send notification:', err);
+  }
+}
+
+function renderNotifications(rows){
+  notifList.querySelectorAll('.notif-item').forEach(function(n){ n.remove(); });
+  if(!rows || !rows.length){
+    notifEmpty.style.display = 'block';
+    notifBadge.style.display = 'none';
+    return;
+  }
+  notifEmpty.style.display = 'none';
+  let unread = 0;
+  rows.forEach(function(n){
+    if(!n.read) unread++;
+    const div = document.createElement('div');
+    div.className = 'notif-item' + (n.read ? '' : ' unread');
+    div.innerHTML =
+      '<strong>' + (PROFILE_LABELS[n.sender] || n.sender) + '</strong> ' + n.message +
+      '<span class="notif-meta">' + new Date(n.created_at).toLocaleString() + '</span>';
+    div.addEventListener('click', function(){ markNotificationRead(n.id); });
+    notifList.appendChild(div);
+  });
+  notifBadge.textContent = unread;
+  notifBadge.style.display = unread ? 'flex' : 'none';
+}
+
+async function markNotificationRead(id){
+  if(!supabaseClient) return;
+  await supabaseClient.from('notifications').update({ read: true }).eq('id', id);
+  loadNotifications();
+}
+
+async function loadNotifications(){
+  if(!supabaseClient || !currentProfile) return;
+  const { data, error } = await supabaseClient
+    .from('notifications')
+    .select('*')
+    .eq('recipient', currentProfile)
+    .order('created_at', { ascending: false });
+  if(!error){ renderNotifications(data); }
+}
+
+
+function subscribeToNotifications(){
+  if(!supabaseClient || !currentProfile) return;
+  if(notifChannel){ supabaseClient.removeChannel(notifChannel); }
+  notifChannel = supabaseClient
+    .channel('notifications-' + currentProfile)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'notifications', filter: 'recipient=eq.' + currentProfile },
+      function(){ loadNotifications(); }
+    )
+    .subscribe();
+}
+
+document.getElementById('notif-bell').addEventListener('click', function(){
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('[data-target="notifications"]').classList.add('active');
+  document.querySelectorAll('.page-section').forEach(function(sec){
+    sec.classList.toggle('active', sec.id === 'notifications');
+  });
 });
 
 /* ================= DASHBOARD NAV ================= */
@@ -852,9 +1092,17 @@ tabButtons.forEach(function(btn){
 });
 
 /* ================= ENVELOPES ================= */
+// This is the reference example for how every future feature should notify the other
+// profile — copy this pattern (call logNotification) into the pinboard, calendar, etc.
 document.querySelectorAll('.envelope-front').forEach(function(front){
   front.addEventListener('click', function(){
-    front.closest('.envelope').classList.add('flipped');
+    const env = front.closest('.envelope');
+    env.classList.add('flipped');
+    if(currentProfile && !env.dataset.notified){
+      env.dataset.notified = '1'; // avoid re-notifying every time it's reopened this visit
+      const title = front.querySelector('h3') ? front.querySelector('h3').textContent : 'a letter';
+      logNotification(currentProfile, 'letter', 'opened "' + title + '"');
+    }
   });
 });
 document.querySelectorAll('.close-envelope').forEach(function(btn){
@@ -865,20 +1113,47 @@ document.querySelectorAll('.close-envelope').forEach(function(btn){
 });
 
 /* ================= GALLERY (data-driven, wired to your c1–c40 photos) ================= */
-// EDIT GALLERY HERE — this builds 40 frames pointed at files named c1.jpg through c40.jpg,
-// sitting in the same folder as this HTML file (or edit `src` below to point wherever you keep them,
-// e.g. "photos/c1.jpg"). If a file isn't found yet, a soft placeholder shows instead so nothing looks broken.
-// Feel free to rewrite `caption` / `memory` for any photo — those are just what shows under the frame and in the popup.
+// EDIT GALLERY HERE — three frame types are supported:
+//   'polaroid' — single photo, white border, needs: caption, memory, src
+//   'gilded'   — single photo, ornate gold frame, needs: caption, memory, src
+//   'strip'    — 2-3 photos stacked like a photobooth strip, needs: caption, memory, srcs (an array)
+// If a photo file isn't found yet, a soft placeholder shows instead so nothing looks broken.
+// Feel free to rewrite any caption/memory below, reorder entries, change which type a photo uses,
+// or swap which photos are grouped into a strip.
+//
+// This starter list auto-builds itself from c1.jpg–c40.jpg so the site works right away,
+// cycling polaroid → gilded → polaroid → gilded → strip (the strip step pulls in 3 consecutive
+// photos so nothing repeats). Once you're happy with it, you can absolutely delete this whole
+// block and paste in a fully hand-written array instead (like the one in your snippet) — the
+// renderer below doesn't care how galleryData was built, only that each entry has the right shape.
 const galleryData = [];
-const GALLERY_TYPES = ['polaroid','gilded'];
-for(let i=1;i<=40;i++){
-  galleryData.push({
-    type: GALLERY_TYPES[i%2],
-    caption: 'memory ' + i,
-    memory: "Write the story behind this memory — where it was, why it matters.",
-    src: 'c' + i + '.jpg'
-  });
-}
+const GALLERY_CYCLE = ['polaroid','gilded','polaroid','gilded','strip'];
+(function buildGalleryData(){
+  let photoNum = 1;
+  let cycleStep = 0;
+  const TOTAL_PHOTOS = 40;
+  while(photoNum <= TOTAL_PHOTOS){
+    const type = GALLERY_CYCLE[cycleStep % GALLERY_CYCLE.length];
+    cycleStep++;
+    if(type === 'strip' && photoNum + 2 <= TOTAL_PHOTOS){
+      galleryData.push({
+        type: 'strip',
+        caption: 'memories ' + photoNum + '\u2013' + (photoNum + 2),
+        memory: "Write the story behind this photostrip — where it was taken, what you were feeling, why it matters.",
+        srcs: ['c' + photoNum + '.jpg', 'c' + (photoNum+1) + '.jpg', 'c' + (photoNum+2) + '.jpg']
+      });
+      photoNum += 3;
+    } else {
+      galleryData.push({
+        type: (type === 'strip') ? 'polaroid' : type, // not enough photos left for a strip, fall back
+        caption: 'memory ' + photoNum,
+        memory: "Write the story behind this photo — where it was taken, what you were feeling, why it matters.",
+        src: 'c' + photoNum + '.jpg'
+      });
+      photoNum += 1;
+    }
+  }
+})();
 
 function placeholderURI(label,bg,fg,w,h,fs){
   const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='"+w+"' height='"+h+"'><rect width='100%' height='100%' fill='"+bg+"'/><text x='50%' y='50%' font-family='Georgia' font-size='"+fs+"' text-anchor='middle' fill='"+fg+"' dy='.3em'>"+label+"</text></svg>";
@@ -894,35 +1169,56 @@ const galleryModal = document.getElementById('gallery-modal');
 const modalImg = document.getElementById('modal-img');
 const modalCaptionText = document.getElementById('modal-caption-text');
 
+function attachPlaceholderFallback(img, label, bg, fg){
+  img.onerror = function(){
+    img.onerror = null;
+    img.src = placeholderURI(label, bg, fg, 400, 400, 20);
+  };
+}
+
 galleryData.forEach(function(item, idx){
   const pastel = GALLERY_PASTELS[idx % GALLERY_PASTELS.length];
   const bg = pastel[0], fg = pastel[1];
   const frame = document.createElement('figure');
   frame.className = 'frame ' + item.type;
 
-  let imgHost = frame;
-  if(item.type === 'gilded'){
-    const inner = document.createElement('div');
-    inner.className = 'inner';
-    frame.appendChild(inner);
-    imgHost = inner;
+  let firstImgSrc = '';
+
+  if(item.type === 'strip'){
+    const stripPhotos = document.createElement('div');
+    stripPhotos.className = 'strip-photos';
+    (item.srcs || []).forEach(function(src, srcIdx){
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = item.caption + ' (' + (srcIdx+1) + ')';
+      attachPlaceholderFallback(img, 'add ' + src, bg, fg);
+      stripPhotos.appendChild(img);
+      if(srcIdx === 0) firstImgSrc = src;
+    });
+    frame.appendChild(stripPhotos);
+  } else {
+    let imgHost = frame;
+    if(item.type === 'gilded'){
+      const inner = document.createElement('div');
+      inner.className = 'inner';
+      frame.appendChild(inner);
+      imgHost = inner;
+    }
+    const img = document.createElement('img');
+    img.src = item.src;
+    img.alt = item.caption;
+    attachPlaceholderFallback(img, 'add ' + item.src, bg, fg);
+    imgHost.appendChild(img);
+    firstImgSrc = item.src;
   }
-  const img = document.createElement('img');
-  img.src = item.src;
-  img.alt = item.caption;
-  img.onerror = function(){
-    img.onerror = null;
-    img.src = placeholderURI('add ' + item.src, bg, fg, 400, 400, 20);
-  };
-  imgHost.appendChild(img);
 
   const figcap = document.createElement('figcaption');
   figcap.textContent = item.caption;
   frame.appendChild(figcap);
 
   frame.addEventListener('click', function(){
-    modalImg.src = img.src;
-    modalImg.alt = img.alt;
+    modalImg.src = firstImgSrc;
+    modalImg.alt = item.caption;
     modalCaptionText.textContent = item.memory;
     galleryModal.classList.add('open');
   });
@@ -1362,26 +1658,6 @@ function claimCoupon(idx){
   grad.addColorStop(1, '#5a3f82');
   ctx.fillStyle = grad;
   ctx.fillRect(0,0,900,560);
-
-  import { initializeApp } from "firebase/app";
-  import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
-  const firebaseConfig = {
-    projectId: "cecearar-cc694",
-    apiKey: "AIzaSyARnxBva4fTQmouiJG3lSOLpVHWR6y4hq0",
-    authDomain: "cecearar-cc694.firebaseapp.com",
-    projectId: "cecearar-cc694",
-    storageBucket: "cecearar-cc694.firebasestorage.app",
-    messagingSenderId: "593332301275",
-    appId: "1:593332301275:web:ad44eab31cc648ebc0cbfe"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
 
   ctx.strokeStyle = '#dccdf5';
   ctx.lineWidth = 6;
